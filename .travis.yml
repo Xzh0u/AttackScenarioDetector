@@ -1,0 +1,60 @@
+
+osx_image: xcode8.4
+
+dist: trusty
+
+language: node_js
+node_js: "12.14.1"
+
+env:
+  global:
+    - ELECTRON_CACHE=$HOME/.cache/electron
+    - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
+
+os:
+  - osx
+
+cache:
+  yarn: true
+  directories:
+  - node_modules
+  - $HOME/.cache/electron
+  - $HOME/.cache/electron-builder
+  - $HOME/.npm/_prebuilds
+
+before_install:
+  - mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v2.2.0/git-lfs-$([ "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-2.2.0.tar.gz | tar -xz -C /tmp/git-lfs --strip-components 1 && /tmp/git-lfs/git-lfs pull
+  - rm .npmrc
+  - rm .yarnrc
+
+script:
+  - |
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      yarn install;
+      yarn build;
+      yarn package;
+    else
+      npm install;
+      npm run build;
+      npm run package-win;
+    fi
+
+before_cache:
+  - rm -rf $HOME/.cache/electron-builder/wine
+
+branches:
+  except:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"
+
+notifications:
+  webhooks:
+    urls:
+      - https://open.feishu.cn/officialapp/notify/dd6698e1132974790e9996e8181d32496d4ffc1e9fc64395763fd87a7abdf872
+    on_success: never # default: always
+    on_failure: always # default: always
+    on_start: never # default: never
+    on_cancel: never # default: always
+    on_error: always # default: always
+
+git:
+  submodules: false

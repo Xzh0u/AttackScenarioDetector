@@ -195,14 +195,10 @@ Predictor_pong_result.prototype.write = function(output) {
 };
 
 var Predictor_predict_args = function(args) {
-  this.data = null;
-  this.timestamp = null;
+  this.i = null;
   if (args) {
-    if (args.data !== undefined && args.data !== null) {
-      this.data = Thrift.copyList(args.data, [null]);
-    }
-    if (args.timestamp !== undefined && args.timestamp !== null) {
-      this.timestamp = args.timestamp;
+    if (args.i !== undefined && args.i !== null) {
+      this.i = args.i;
     }
   }
 };
@@ -218,27 +214,15 @@ Predictor_predict_args.prototype.read = function(input) {
     }
     switch (fid) {
       case 1:
-      if (ftype == Thrift.Type.LIST) {
-        this.data = [];
-        var _rtmp311 = input.readListBegin();
-        var _size10 = _rtmp311.size || 0;
-        for (var _i12 = 0; _i12 < _size10; ++_i12) {
-          var elem13 = null;
-          elem13 = input.readDouble();
-          this.data.push(elem13);
-        }
-        input.readListEnd();
+      if (ftype == Thrift.Type.I32) {
+        this.i = input.readI32();
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.timestamp = input.readString();
-      } else {
+      case 0:
         input.skip(ftype);
-      }
-      break;
+        break;
       default:
         input.skip(ftype);
     }
@@ -250,21 +234,9 @@ Predictor_predict_args.prototype.read = function(input) {
 
 Predictor_predict_args.prototype.write = function(output) {
   output.writeStructBegin('Predictor_predict_args');
-  if (this.data !== null && this.data !== undefined) {
-    output.writeFieldBegin('data', Thrift.Type.LIST, 1);
-    output.writeListBegin(Thrift.Type.DOUBLE, this.data.length);
-    for (var iter14 in this.data) {
-      if (this.data.hasOwnProperty(iter14)) {
-        iter14 = this.data[iter14];
-        output.writeDouble(iter14);
-      }
-    }
-    output.writeListEnd();
-    output.writeFieldEnd();
-  }
-  if (this.timestamp !== null && this.timestamp !== undefined) {
-    output.writeFieldBegin('timestamp', Thrift.Type.STRING, 2);
-    output.writeString(this.timestamp);
+  if (this.i !== null && this.i !== undefined) {
+    output.writeFieldBegin('i', Thrift.Type.I32, 1);
+    output.writeI32(this.i);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -445,7 +417,7 @@ PredictorClient.prototype.recv_pong = function(input,mtype,rseqid) {
   return callback('pong failed: unknown result');
 };
 
-PredictorClient.prototype.predict = function(data, timestamp, callback) {
+PredictorClient.prototype.predict = function(i, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -456,19 +428,18 @@ PredictorClient.prototype.predict = function(data, timestamp, callback) {
         _defer.resolve(result);
       }
     };
-    this.send_predict(data, timestamp);
+    this.send_predict(i);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_predict(data, timestamp);
+    this.send_predict(i);
   }
 };
 
-PredictorClient.prototype.send_predict = function(data, timestamp) {
+PredictorClient.prototype.send_predict = function(i) {
   var output = new this.pClass(this.output);
   var params = {
-    data: data,
-    timestamp: timestamp
+    i: i
   };
   var args = new Predictor_predict_args(params);
   try {
@@ -598,10 +569,9 @@ PredictorProcessor.prototype.process_predict = function(seqid, input, output) {
   var args = new Predictor_predict_args();
   args.read(input);
   input.readMessageEnd();
-  if (this._handler.predict.length === 2) {
+  if (this._handler.predict.length === 1) {
     Q.fcall(this._handler.predict.bind(this._handler),
-      args.data,
-      args.timestamp
+      args.i
     ).then(function(result) {
       var result_obj = new Predictor_predict_result({success: result});
       output.writeMessageBegin("predict", Thrift.MessageType.REPLY, seqid);
@@ -617,7 +587,7 @@ PredictorProcessor.prototype.process_predict = function(seqid, input, output) {
       output.flush();
     });
   } else {
-    this._handler.predict(args.data, args.timestamp, function (err, result) {
+    this._handler.predict(args.i, function (err, result) {
       var result_obj;
       if ((err === null || typeof err === 'undefined')) {
         result_obj = new Predictor_predict_result((err !== null || typeof err === 'undefined') ? err : {success: result});

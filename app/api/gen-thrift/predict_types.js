@@ -14,14 +14,14 @@ var Int64 = require('node-int64');
 var ttypes = module.exports = {};
 var pred = module.exports.pred = function(args) {
   this.type = null;
-  this.loss = null;
+  this.confidence = null;
   this.timestamp = null;
   if (args) {
     if (args.type !== undefined && args.type !== null) {
       this.type = args.type;
     }
-    if (args.loss !== undefined && args.loss !== null) {
-      this.loss = args.loss;
+    if (args.confidence !== undefined && args.confidence !== null) {
+      this.confidence = args.confidence;
     }
     if (args.timestamp !== undefined && args.timestamp !== null) {
       this.timestamp = args.timestamp;
@@ -48,7 +48,7 @@ pred.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.DOUBLE) {
-        this.loss = input.readDouble();
+        this.confidence = input.readDouble();
       } else {
         input.skip(ftype);
       }
@@ -76,9 +76,9 @@ pred.prototype.write = function(output) {
     output.writeI32(this.type);
     output.writeFieldEnd();
   }
-  if (this.loss !== null && this.loss !== undefined) {
-    output.writeFieldBegin('loss', Thrift.Type.DOUBLE, 2);
-    output.writeDouble(this.loss);
+  if (this.confidence !== null && this.confidence !== undefined) {
+    output.writeFieldBegin('confidence', Thrift.Type.DOUBLE, 2);
+    output.writeDouble(this.confidence);
     output.writeFieldEnd();
   }
   if (this.timestamp !== null && this.timestamp !== undefined) {

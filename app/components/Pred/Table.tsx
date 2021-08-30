@@ -53,13 +53,11 @@ const columns = [
     sorter: (a: any, b: any) => a.timestamp - b.timestamp,
   },
   {
-    title: "攻击强度指数",
-    dataIndex: "loss",
-    key: "loss",
-    render: (loss: String) => (
-      <span>{Math.round(Number(loss) * 10000) / 10000}</span>
-    ),
-    sorter: (a: any, b: any) => a.loss - b.loss,
+    title: "置信度",
+    dataIndex: "confidence",
+    key: "confidence",
+    render: (confidence: String) => <span>{Number(confidence) * 4}</span>,
+    sorter: (a: any, b: any) => a.confidence - b.confidence,
   },
   {
     title: "攻击场景类型",
@@ -67,26 +65,26 @@ const columns = [
     key: "type",
     sorter: (a: any, b: any) => a.type - b.type,
     render: (type: number) => {
-      if (type === 0) {
-        return "";
-      }
-      return `IDX(${type})`;
+      // if (type === 0) {
+      //   return "";
+      // }
+      return `AST(${type})`;
     },
   },
   {
     title: "安全等级",
-    key: "loss",
-    dataIndex: "loss",
+    key: "confidence",
+    dataIndex: "confidence",
     filters: Object.keys(Threat).map((k: any) => ({
       text: Threat[k]["text"],
       value: Threat[k]["range"],
     })),
-    sorter: (a: any, b: any) => a.loss - b.loss,
+    sorter: (a: any, b: any) => a.confidence - b.confidence,
     onFilter: (value: any, record: any) =>
-      record.loss < value[1] && record.loss >= value[0],
-    render: (loss: String) => {
+      record.confidence < value[1] && record.confidence >= value[0],
+    render: (confidence: String) => {
       let tag: ThreatLevel;
-      const abLoss = Math.abs(Number(loss));
+      const abLoss = Math.abs(Number(confidence));
       if (abLoss < Threat.SAFE.range[1]) {
         tag = Threat.SAFE;
       } else if (abLoss < Threat.LOW.range[1]) {

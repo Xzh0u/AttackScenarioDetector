@@ -42,7 +42,7 @@ class Pred extends Component<any, State> {
     this.setTime = this.setTime.bind(this);
     this.setMonitor = this.setMonitor.bind(this);
     this.loadData = this.loadData.bind(this);
-    this.sendData = this.sendData.bind(this);
+    this.getData = this.getData.bind(this);
     this.pauseSend = this.pauseSend.bind(this);
   }
 
@@ -135,29 +135,28 @@ class Pred extends Component<any, State> {
     });
   }
 
-  transmit(data: Array<number>, dataIdx: string) {
-    ipcRenderer.send("predict", data, dataIdx);
+  transmit(dataIdx: number) {
+    ipcRenderer.send("predict", dataIdx);
   }
 
-  sendData(idx: number) {
-    if (!this.data || this.intervalId) {
-      console.info("null");
-      return null;
-    }
+  getData(idx: number) {
+    // if (!this.data || this.intervalId) {
+    //   console.info("null");
+    //   return null;
+    // }
 
-    const dataIdx = idx % this.data.length;
-    const data = Object.keys(this.data[dataIdx])
-      .slice(1)
-      .map((k) => this.data[dataIdx][k]);
-    const time = String(Date.now());
-    this.transmit(data, time);
-    return null;
+    // const dataIdx = idx % this.data.length;
+    // const data = Object.keys(this.data[dataIdx])
+    //   .slice(1)
+    //   .map((k) => this.data[dataIdx][k]);
+    this.transmit(idx);
+    // return null;
   }
 
   render() {
     const { monitorState, time, isLoading, results } = this.state;
 
-    const faultNum = results.filter((r) => r.loss >= 0.4).length;
+    const faultNum = results.filter((r) => r.confidence >= 0.1).length;
     const faultProb = Math.round((faultNum / results.length) * 100) / 100;
 
     return (
@@ -177,7 +176,7 @@ class Pred extends Component<any, State> {
                 setTime={this.setTime}
                 setMonitor={this.setMonitor}
                 loadData={this.loadData}
-                sendData={this.sendData}
+                sendData={this.getData}
                 isLoading={isLoading}
               />
             </Card>

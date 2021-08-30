@@ -5,7 +5,7 @@ import {
   BorderOutlined,
   CaretRightOutlined,
   DownloadOutlined,
-  LoadingOutlined
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { MonitorState } from "./";
 
@@ -20,7 +20,15 @@ interface ICounter {
 }
 
 const Timer = (props: ICounter) => {
-  const { monitorState, time, setTime, setMonitor, loadData, sendData, isLoading } = props;
+  const {
+    monitorState,
+    time,
+    setTime,
+    setMonitor,
+    loadData,
+    sendData,
+    isLoading,
+  } = props;
   useEffect(() => {
     if (monitorState === MonitorState.RUNNING) {
       const timeout = setTimeout(() => {
@@ -28,6 +36,7 @@ const Timer = (props: ICounter) => {
         (async () => {
           const idx = Math.floor(time);
           if (time - idx < 0.01) {
+            console.log("send", idx);
             sendData(idx);
           }
         })();
@@ -45,7 +54,7 @@ const Timer = (props: ICounter) => {
   switch (monitorState) {
     case MonitorState.WAIT:
       if (isLoading) {
-        icon = <LoadingOutlined/>;
+        icon = <LoadingOutlined />;
       } else {
         icon = <DownloadOutlined />;
       }

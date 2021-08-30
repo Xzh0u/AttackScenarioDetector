@@ -79,12 +79,13 @@ def load_data(path="./data/alert/", dataset="alert"):
     # 将特征转换为tensor
     features = torch.FloatTensor(np.array(features.todense()))
     labels = torch.LongTensor(np.where(labels)[1])
-    print(labels.max().item() + 1)
+    # print(labels.max().item() + 1)
     adj = sparse_mx_to_torch_sparse_tensor(adj)
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
+    print('Finish loading')
 
     return adj, features, labels, idx_train, idx_val, idx_test
 

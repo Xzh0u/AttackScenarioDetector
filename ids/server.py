@@ -106,8 +106,8 @@ class PredictionHandler:
 
         pred = ttypes.pred()
         pred.type = int(result)
-        pred.confidence = float(confidence[i])
-        pred.timestamp = str(time.time())
+        pred.confidence = float(-confidence[i])
+        pred.timestamp = str(round(time.time() * 1000))
         print(pred)
         return pred
 

@@ -4,7 +4,7 @@ import { Chart, Geom, Axis, Tooltip, Legend, Guide } from "bizcharts";
 // 定义度量
 const cols = {
   timestamp: { alias: "时间" },
-  loss: { alias: "异常指数", min: -0.5, max: 1.6 }
+  confidence: { alias: "异常指数", min: -0.5, max: 1.6 },
 };
 
 const label: any = {
@@ -15,7 +15,7 @@ const label: any = {
     // fill: "#404040", // 文本的颜色
     fontSize: "12", // 文本大小
     // fontWeight: "bold", // 文本粗细
-    textBaseline: "top" // 文本基准线，可取 top middle bottom，默认为middle
+    textBaseline: "top", // 文本基准线，可取 top middle bottom，默认为middle
   },
   autoRotate: true, // 文本是否需要自动旋转，默认为 true
   /**
@@ -39,7 +39,7 @@ const label: any = {
       hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
 
     return formattedTime;
-  }
+  },
 };
 
 const { Line } = Guide;
@@ -57,7 +57,7 @@ class Figures extends PureComponent<any, any> {
         scale={cols}
       >
         <Axis name="timestamp" title label={label} />
-        <Axis name="loss" title />
+        <Axis name="confidence" title />
         <Legend position="top" />
         <Tooltip />
         <Guide>
@@ -65,7 +65,7 @@ class Figures extends PureComponent<any, any> {
         </Guide>
         <Geom
           type="line"
-          position="timestamp*loss"
+          position="timestamp*confidence"
           shape="smooth"
           color={`l (270) 0:rgba(47,194,91,1) 0.5:rgba(206,241,141,1) 1:rgba(255,0,0,1)`}
         />
